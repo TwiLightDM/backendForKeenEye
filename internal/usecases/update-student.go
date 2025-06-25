@@ -1,0 +1,56 @@
+package usecases
+
+import (
+	"backendForKeenEye/internal/entities"
+	"context"
+	"fmt"
+)
+
+type UpdateStudentUsecase struct {
+	studentRepo UpdateStudentRepository
+}
+
+type UpdateStudentRequestDto struct {
+	Id          int
+	Fio         string
+	GroupName   string
+	PhoneNumber string
+}
+
+type UpdateStudentResponseDto struct {
+	Student entities.Student `json:"student"`
+}
+
+func NewUpdateStudentUsecase(StudentRepo UpdateStudentRepository) UpdateStudentUsecase {
+	return UpdateStudentUsecase{studentRepo: StudentRepo}
+}
+
+func (uc *UpdateStudentUsecase) UpdateStudent(ctx context.Context, request UpdateStudentRequestDto) (UpdateStudentResponseDto, error) {
+	var response UpdateStudentResponseDto
+	updates := make(map[string]any)
+
+	if request.Id == 0 {
+		return response, fmt.Errorf("id is required")
+	}
+	if request.Fio != "" {
+		updates["fio"] = request.Fio
+	}
+	if request.GroupName != "" {
+		updates["group_name"] = request.GroupName
+	}
+	if request.PhoneNumber != "" {
+		updates["phone_number"] = request.PhoneNumber
+	}
+	if len(updates) == 0 {
+		return response, fmt.Errorf("no fields provided to update")
+	}
+
+	student, err := uc.studentRepo.Update(ctx, request.Id, updates)
+	if err != nil {
+		return response, fmt.Errorf("failed to update Student: %w", err)
+	}
+	response = UpdateStudentResponseDto{
+		Student: student,
+	}
+	return response, nil
+}

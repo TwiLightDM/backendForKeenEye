@@ -1,0 +1,13 @@
+http:
+  host: "0.0.0.0"
+  port: "8000"
+pg:
+  user: "postgres_user"
+  password: "superStrongPassword"
+  host: "localhost"
+  port: "5432"
+  database: "keen_eye"
+  max_pool_size: 6
+  migrations_path: "file://config/pg/migrations"
+  retry_connection_attempts: 10
+  retry_connection_timeout: "10s"

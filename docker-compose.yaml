@@ -1,0 +1,14 @@
+services:
+  auth-database:
+    image: postgres:17
+    container_name: keen-eye-database
+    hostname: keen-eye-database
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    env_file:
+      - /.env
+    volumes:
+      - pgdata:${PGDATA}
+
+volumes:
+  pgdata:
