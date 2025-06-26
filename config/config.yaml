@@ -4,7 +4,7 @@ http:
 pg:
   user: "postgres_user"
   password: "superStrongPassword"
-  host: "localhost"
+  host: "keen-eye-database"
   port: "5432"
   database: "keen_eye"
   max_pool_size: 6

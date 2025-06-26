@@ -1,5 +1,5 @@
 services:
-  auth-database:
+  keen-eye-database:
     image: postgres:17
     container_name: keen-eye-database
     hostname: keen-eye-database
@@ -9,6 +9,18 @@ services:
       - /.env
     volumes:
       - pgdata:${PGDATA}
+
+  back-go:
+    build:
+      context: .
+    container_name: back-go
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - keen-eye-database
+    restart: always
 
 volumes:
   pgdata:
