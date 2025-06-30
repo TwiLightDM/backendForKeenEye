@@ -24,3 +24,7 @@ type UpdateStudentUsecase interface {
 type DeleteStudentUsecase interface {
 	DeleteStudent(context.Context, usecases.DeleteStudentRequestDto) error
 }
+
+type CreateAccountUsecase interface {
+	CreateAccount(context.Context, usecases.CreateAccountRequestDto) (usecases.CreateAccountResponseDto, error)
+}

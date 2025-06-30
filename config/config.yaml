@@ -11,3 +11,5 @@ pg:
   migrations_path: "file://config/pg/migrations"
   retry_connection_attempts: 10
   retry_connection_timeout: "10s"
+encryption:
+  salt_length: 10

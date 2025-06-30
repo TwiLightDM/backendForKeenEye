@@ -1,5 +1,16 @@
 basePath: /
 definitions:
+  entities.Account:
+    properties:
+      id:
+        type: integer
+      login:
+        type: string
+      password:
+        type: string
+      salt:
+        type: string
+    type: object
   entities.Student:
     properties:
       fio:
@@ -9,6 +20,13 @@ definitions:
       id:
         type: integer
       phoneNumber:
+        type: string
+    type: object
+  requests.CreateAccountRequest:
+    properties:
+      login:
+        type: string
+      password:
         type: string
     type: object
   requests.CreateStudentRequest:
@@ -38,6 +56,36 @@ info:
   title: Backend for KeenEye
   version: 1.0.0
 paths:
+  /api/create-account:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: Account credentials
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Account'
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Create account
+      tags:
+      - account
   /api/create-student:
     post:
       consumes:
@@ -65,6 +113,8 @@ paths:
           description: Internal Server Error
           schema:
             type: object
+      security:
+      - BasicAuth: []
       summary: Create student
       tags:
       - students
@@ -90,6 +140,8 @@ paths:
           description: Internal Server Error
           schema:
             type: object
+      security:
+      - BasicAuth: []
       summary: Delete student
       tags:
       - students
@@ -166,7 +218,14 @@ paths:
           description: Internal Server Error
           schema:
             type: object
+      security:
+      - BasicAuth: []
       summary: Update student
       tags:
       - students
+securityDefinitions:
+  BasicAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

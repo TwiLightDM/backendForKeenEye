@@ -9,3 +9,7 @@ cover:
 
 cover-html:
 	go tool cover -html=$(COVERAGE_FILE) -o coverage.html
+
+swagger:
+	swag init
+	go run .

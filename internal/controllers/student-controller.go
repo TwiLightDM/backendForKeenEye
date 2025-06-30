@@ -25,6 +25,7 @@ func NewStudentController(createStudentUsecase CreateStudentUsecase, readAllStud
 // @Summary      Create student
 // @Description  Create a new student
 // @Tags         students
+// @Security     BasicAuth
 // @Accept       json
 // @Produce      json
 // @Param        student body requests.CreateStudentRequest true "Student info"
@@ -106,6 +107,7 @@ func (controller *StudentController) ReadStudent(c *gin.Context) {
 // @Summary      Update student
 // @Description  Update student info
 // @Tags         students
+// @Security     BasicAuth
 // @Accept       json
 // @Produce      json
 // @Param        student body requests.UpdateStudentRequest true "Updated student info"
@@ -135,6 +137,7 @@ func (controller *StudentController) UpdateStudent(c *gin.Context) {
 // @Summary      Delete student
 // @Description  Delete student by ID
 // @Tags         students
+// @Security     BasicAuth
 // @Produce      json
 // @Param        id query int true "Student ID"
 // @Success      200

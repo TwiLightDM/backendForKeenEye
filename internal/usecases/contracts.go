@@ -5,6 +5,11 @@ import (
 	"context"
 )
 
+type Cryptographer interface {
+	HashPassword(password string) (string, string, error)
+	PasswordComparison(password, hashedPassword, salt string) (bool, error)
+}
+
 type CreateStudentRepository interface {
 	Create(ctx context.Context, student entities.Student) (int, error)
 }
@@ -23,4 +28,12 @@ type UpdateStudentRepository interface {
 
 type DeleteStudentRepository interface {
 	DeleteById(ctx context.Context, id int) error
+}
+
+type CreateAccountRepository interface {
+	Create(ctx context.Context, student entities.Account) (int, error)
+}
+
+type ReadAccountRepository interface {
+	ReadByLogin(ctx context.Context, login string) (entities.Account, error)
 }

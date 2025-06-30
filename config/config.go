@@ -11,8 +11,9 @@ import (
 
 type (
 	Config struct {
-		Http     `mapstructure:"http"`
-		Postgres postgres.Config `mapstructure:"pg"`
+		Http       `mapstructure:"http"`
+		Encryption `mapstructure:"encryption"`
+		Postgres   postgres.Config `mapstructure:"pg"`
 	}
 
 	Postgres struct {
@@ -31,6 +32,10 @@ type (
 	Http struct {
 		Host string `mapstructure:"host"`
 		Port string `mapstructure:"port"`
+	}
+
+	Encryption struct {
+		Salt int `mapstructure:"salt_length"`
 	}
 )
 
