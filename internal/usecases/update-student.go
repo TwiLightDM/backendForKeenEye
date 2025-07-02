@@ -3,7 +3,6 @@ package usecases
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
-	"fmt"
 )
 
 type UpdateStudentUsecase struct {
@@ -30,7 +29,7 @@ func (uc *UpdateStudentUsecase) UpdateStudent(ctx context.Context, request Updat
 	updates := make(map[string]any)
 
 	if request.Id == 0 {
-		return response, fmt.Errorf("id is required")
+		return response, MissingIdError
 	}
 	if request.Fio != "" {
 		updates["fio"] = request.Fio
@@ -42,12 +41,12 @@ func (uc *UpdateStudentUsecase) UpdateStudent(ctx context.Context, request Updat
 		updates["phone_number"] = request.PhoneNumber
 	}
 	if len(updates) == 0 {
-		return response, fmt.Errorf("no fields provided to update")
+		return response, NoFieldsError
 	}
 
 	student, err := uc.studentRepo.Update(ctx, request.Id, updates)
 	if err != nil {
-		return response, fmt.Errorf("failed to update Student: %w", err)
+		return response, UpdateError
 	}
 	response = UpdateStudentResponseDto{
 		Student: student,

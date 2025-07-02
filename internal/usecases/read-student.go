@@ -3,7 +3,6 @@ package usecases
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
-	"fmt"
 )
 
 type ReadStudentUsecase struct {
@@ -27,7 +26,7 @@ func (uc *ReadStudentUsecase) ReadStudent(ctx context.Context, request ReadStude
 
 	student, err := uc.StudentRepo.ReadById(ctx, request.Id)
 	if err != nil {
-		return response, fmt.Errorf("failed to Read Student record: %w", err)
+		return response, ReadError
 	}
 
 	response = ReadStudentResponseDto{

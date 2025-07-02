@@ -3,7 +3,6 @@ package repositories
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
-	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -32,7 +31,7 @@ func (repo *AccountRepository) Create(ctx context.Context, Account entities.Acco
 	var newID int
 	err = repo.pool.QueryRow(ctx, sql, args...).Scan(&newID)
 	if err != nil {
-		return 0, fmt.Errorf("failed to insert Account: %w", err)
+		return 0, SqlInsertError
 	}
 
 	return newID, nil
@@ -57,7 +56,7 @@ func (repo *AccountRepository) ReadByLogin(ctx context.Context, login string) (e
 		&salt,
 	)
 	if err != nil {
-		return entities.Account{}, fmt.Errorf("failed to read Account: %w", err)
+		return entities.Account{}, SqlReadError
 	}
 
 	return entities.Account{Id: id, Login: login, Password: password, Salt: salt}, nil

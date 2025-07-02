@@ -3,7 +3,6 @@ package usecases
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
-	"fmt"
 )
 
 type CreateAccountUsecase struct {
@@ -28,14 +27,14 @@ func (uc *CreateAccountUsecase) CreateAccount(ctx context.Context, request Creat
 	var response CreateAccountResponseDto
 	hashedPassword, salt, err := uc.crypto.HashPassword(request.Password)
 	if err != nil {
-		return response, fmt.Errorf("failed to hash password: %w", err)
+		return response, HashPasswordError
 	}
 
 	Account := entities.Account{Login: request.Login, Password: hashedPassword, Salt: salt}
 
 	id, err := uc.accountRepo.Create(ctx, Account)
 	if err != nil {
-		return response, fmt.Errorf("failed to create Account record: %w", err)
+		return response, CreateError
 	}
 
 	response = CreateAccountResponseDto{

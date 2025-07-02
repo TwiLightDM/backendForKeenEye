@@ -32,7 +32,7 @@ func AuthMiddleware(ctx context.Context, authService *usecases.AuthService) gin.
 
 		login, password := parts[0], parts[1]
 
-		_, err = authService.GetAccountByLoginAndPassword(ctx, login, password)
+		account, err := authService.GetAccountByLoginAndPassword(ctx, login, password)
 		if err != nil {
 			fmt.Println(login)
 			fmt.Println(password)
@@ -40,6 +40,7 @@ func AuthMiddleware(ctx context.Context, authService *usecases.AuthService) gin.
 			return
 		}
 
+		c.Set("account", account)
 		c.Next()
 	}
 }

@@ -13,3 +13,6 @@ cover-html:
 swagger:
 	swag init
 	go run .
+
+back:
+	docker compose up -d --build back-go

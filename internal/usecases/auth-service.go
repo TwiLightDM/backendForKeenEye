@@ -3,7 +3,6 @@ package usecases
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
-	"fmt"
 )
 
 type AuthService struct {
@@ -18,12 +17,12 @@ func NewAuthService(accountRepo ReadAccountRepository, encryption Cryptographer)
 func (a *AuthService) GetAccountByLoginAndPassword(ctx context.Context, login, password string) (entities.Account, error) {
 	account, err := a.accountRepo.ReadByLogin(ctx, login)
 	if err != nil {
-		return entities.Account{}, fmt.Errorf("account not found: %w", err)
+		return entities.Account{}, AccountNotFoundError
 	}
 
 	_, err = a.encryption.PasswordComparison(account.Password, password, account.Salt)
 	if err != nil {
-		return entities.Account{}, fmt.Errorf("passwords are not similar: %w", err)
+		return entities.Account{}, DifferentPasswordError
 	}
 
 	return account, nil

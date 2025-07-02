@@ -3,7 +3,6 @@ package usecases
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
-	"fmt"
 )
 
 type CreateStudentUsecase struct {
@@ -30,7 +29,7 @@ func (uc *CreateStudentUsecase) CreateStudent(ctx context.Context, request Creat
 
 	id, err := uc.StudentRepo.Create(ctx, student)
 	if err != nil {
-		return response, fmt.Errorf("failed to create Student record: %w", err)
+		return response, CreateError
 	}
 
 	response = CreateStudentResponseDto{

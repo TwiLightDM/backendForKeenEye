@@ -33,7 +33,7 @@ func (repo *StudentRepository) Create(ctx context.Context, Student entities.Stud
 	var newID int
 	err = repo.pool.QueryRow(ctx, sql, args...).Scan(&newID)
 	if err != nil {
-		return 0, fmt.Errorf("failed to insert Student: %w", err)
+		return 0, SqlInsertError
 	}
 
 	return newID, nil
@@ -52,7 +52,7 @@ func (repo *StudentRepository) Read(ctx context.Context) ([]entities.Student, er
 
 	rows, err := repo.pool.Query(ctx, sql, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query students: %w", err)
+		return nil, SqlReadError
 	}
 	defer rows.Close()
 
@@ -66,7 +66,7 @@ func (repo *StudentRepository) Read(ctx context.Context) ([]entities.Student, er
 			&student.PhoneNumber,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("failed to scan Student: %w", err)
+			return nil, SqlScanError
 		}
 
 		students = append(students, student)
@@ -98,7 +98,7 @@ func (repo *StudentRepository) ReadById(ctx context.Context, id int) (entities.S
 		&phoneNumber,
 	)
 	if err != nil {
-		return entities.Student{}, fmt.Errorf("failed to read Student: %w", err)
+		return entities.Student{}, SqlReadError
 	}
 
 	return entities.Student{Id: id, Fio: fio, GroupName: group, PhoneNumber: phoneNumber}, nil
@@ -125,7 +125,7 @@ func (repo *StudentRepository) Update(ctx context.Context, id int, updates map[s
 	)
 
 	if err != nil {
-		return entities.Student{}, fmt.Errorf("failed to update Student: %w", err)
+		return entities.Student{}, SqlUpdateError
 	}
 
 	return student, nil
@@ -143,7 +143,7 @@ func (repo *StudentRepository) DeleteById(ctx context.Context, id int) error {
 
 	_, err = repo.pool.Exec(ctx, sql, args...)
 	if err != nil {
-		return fmt.Errorf("failed to delete Student: %w", err)
+		return SqlDeleteError
 	}
 
 	return nil
