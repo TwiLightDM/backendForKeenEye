@@ -7,6 +7,7 @@ import (
 	"backendForKeenEye/internal/repositories"
 	"backendForKeenEye/internal/usecases"
 	encryptionService "backendForKeenEye/pkg/encryption-service"
+	jwtService "backendForKeenEye/pkg/jwt-service"
 	"backendForKeenEye/pkg/postgres"
 	"context"
 	"fmt"
@@ -41,18 +42,19 @@ func NewContainer() *Container {
 
 	ctx := context.Background()
 	encryption := encryptionService.NewEncryptionService(cfg.Salt)
+	jwt := jwtService.NewJWTService(cfg.Key, cfg.AccessTime, cfg.RefreshTime)
 
 	studentRepo := repositories.NewStudentRepository(pgClient.Pool, pgClient.Builder)
 	accountRepo := repositories.NewAccountRepository(pgClient.Pool, pgClient.Builder)
 
-	authService := usecases.NewAuthService(accountRepo, encryption)
+	authService := usecases.NewAuthService(accountRepo, encryption, jwt)
 
 	createStudent := usecases.NewCreateStudentUsecase(studentRepo)
 	readAllStudents := usecases.NewReadAllStudentsUsecase(studentRepo)
 	readStudent := usecases.NewReadStudentUsecase(studentRepo)
 	updateStudent := usecases.NewUpdateStudentUsecase(studentRepo)
 	deleteStudent := usecases.NewDeleteStudentUsecase(studentRepo)
-	createAccount := usecases.NewCreateAccountUsecase(accountRepo, encryption)
+	createAccount := usecases.NewCreateAccountUsecase(accountRepo, encryption, jwt)
 
 	accountController := controllers.NewAccountController(&createAccount)
 	studentController := controllers.NewStudentController(

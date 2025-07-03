@@ -13,3 +13,7 @@ pg:
   retry_connection_timeout: "10s"
 encryption:
   salt_length: 10
+jwt:
+  key: "difficultKey"
+  access_time: 1h
+  refresh_time: 24h

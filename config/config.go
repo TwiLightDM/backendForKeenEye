@@ -14,6 +14,7 @@ type (
 		Http       `mapstructure:"http"`
 		Encryption `mapstructure:"encryption"`
 		Postgres   postgres.Config `mapstructure:"pg"`
+		JWT        `mapstructure:"jwt"`
 	}
 
 	Postgres struct {
@@ -36,6 +37,12 @@ type (
 
 	Encryption struct {
 		Salt int `mapstructure:"salt_length"`
+	}
+
+	JWT struct {
+		Key         string        `mapstructure:"key"`
+		AccessTime  time.Duration `mapstructure:"access_time"`
+		RefreshTime time.Duration `mapstructure:"refresh_time"`
 	}
 )
 

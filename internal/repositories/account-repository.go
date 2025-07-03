@@ -61,3 +61,27 @@ func (repo *AccountRepository) ReadByLogin(ctx context.Context, login string) (e
 
 	return entities.Account{Id: id, Login: login, Password: password, Salt: salt}, nil
 }
+
+func (repo *AccountRepository) ReadById(ctx context.Context, id int) (entities.Account, error) {
+	var login, password, salt string
+	sql, args, err := repo.builder.
+		Select("login", "password", "salt").
+		From("accounts").
+		Where(squirrel.Eq{"id": id}).
+		ToSql()
+
+	if err != nil {
+		return entities.Account{}, SqlStatementError
+	}
+
+	err = repo.pool.QueryRow(ctx, sql, args...).Scan(
+		&login,
+		&password,
+		&salt,
+	)
+	if err != nil {
+		return entities.Account{}, SqlReadError
+	}
+
+	return entities.Account{Id: id, Login: login, Password: password, Salt: salt}, nil
+}

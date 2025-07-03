@@ -3,11 +3,13 @@ package usecases
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
+	"fmt"
 )
 
 type CreateAccountUsecase struct {
 	accountRepo CreateAccountRepository
 	crypto      Cryptographer
+	jwt         JWTGenerator
 }
 
 type CreateAccountRequestDto struct {
@@ -16,11 +18,13 @@ type CreateAccountRequestDto struct {
 }
 
 type CreateAccountResponseDto struct {
-	Id int `json:"id"`
+	Id           int    `json:"id"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
-func NewCreateAccountUsecase(accountRepo CreateAccountRepository, crypto Cryptographer) CreateAccountUsecase {
-	return CreateAccountUsecase{accountRepo: accountRepo, crypto: crypto}
+func NewCreateAccountUsecase(accountRepo CreateAccountRepository, crypto Cryptographer, jwt JWTGenerator) CreateAccountUsecase {
+	return CreateAccountUsecase{accountRepo: accountRepo, crypto: crypto, jwt: jwt}
 }
 
 func (uc *CreateAccountUsecase) CreateAccount(ctx context.Context, request CreateAccountRequestDto) (CreateAccountResponseDto, error) {
@@ -37,8 +41,24 @@ func (uc *CreateAccountUsecase) CreateAccount(ctx context.Context, request Creat
 		return response, CreateError
 	}
 
-	response = CreateAccountResponseDto{
-		Id: id,
+	var data = make(map[string]any)
+	data["id"] = id
+
+	accessToken, err := uc.jwt.GenerateAccessJWT(data)
+	if err != nil {
+		return response, fmt.Errorf("failed to generate access token: %w", err)
 	}
+
+	refreshToken, err := uc.jwt.GenerateRefreshJWT(data)
+	if err != nil {
+		return response, fmt.Errorf("failed to generate refresh token: %w", err)
+	}
+
+	response = CreateAccountResponseDto{
+		Id:           id,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
 	return response, nil
 }
