@@ -14,6 +14,8 @@ type UpdateStudentRequestDto struct {
 	Fio         string
 	GroupName   string
 	PhoneNumber string
+	GroupId     int
+	AccountId   int
 }
 
 type UpdateStudentResponseDto struct {
@@ -39,6 +41,12 @@ func (uc *UpdateStudentUsecase) UpdateStudent(ctx context.Context, request Updat
 	}
 	if request.PhoneNumber != "" {
 		updates["phone_number"] = request.PhoneNumber
+	}
+	if request.GroupId != 0 {
+		updates["group_id"] = request.GroupId
+	}
+	if request.AccountId != 0 {
+		updates["account_id"] = request.AccountId
 	}
 	if len(updates) == 0 {
 		return response, NoFieldsError

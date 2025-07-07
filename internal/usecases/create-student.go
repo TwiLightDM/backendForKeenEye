@@ -13,6 +13,8 @@ type CreateStudentRequestDto struct {
 	Fio         string
 	GroupName   string
 	PhoneNumber string
+	GroupId     int
+	AccountId   int
 }
 
 type CreateStudentResponseDto struct {
@@ -25,7 +27,7 @@ func NewCreateStudentUsecase(StudentRepo CreateStudentRepository) CreateStudentU
 
 func (uc *CreateStudentUsecase) CreateStudent(ctx context.Context, request CreateStudentRequestDto) (CreateStudentResponseDto, error) {
 	var response CreateStudentResponseDto
-	student := entities.Student{Fio: request.Fio, GroupName: request.GroupName, PhoneNumber: request.PhoneNumber}
+	student := entities.Student{Fio: request.Fio, GroupName: request.GroupName, PhoneNumber: request.PhoneNumber, GroupId: request.GroupId, AccountId: request.AccountId}
 
 	id, err := uc.StudentRepo.Create(ctx, student)
 	if err != nil {

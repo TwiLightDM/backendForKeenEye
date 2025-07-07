@@ -34,7 +34,7 @@ func (controller *AccountController) CreateAccount(c *gin.Context) {
 		return
 	}
 
-	data, err := controller.createAccountUsecase.CreateAccount(c, usecases.CreateAccountRequestDto{Login: req.Login, Password: req.Password})
+	data, err := controller.createAccountUsecase.CreateAccount(c, usecases.CreateAccountRequestDto{Login: req.Login, Password: req.Password, Role: req.Role})
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

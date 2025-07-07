@@ -52,4 +52,7 @@ func main() {
 	} else {
 		fmt.Println("Server exited gracefully")
 	}
+
+	c.PGClient.Close()
+	fmt.Println("Database connection closed.")
 }

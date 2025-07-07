@@ -8,14 +8,51 @@ definitions:
         type: string
       password:
         type: string
+      role:
+        type: string
       salt:
         type: string
     type: object
-  entities.Student:
+  entities.Admin:
     properties:
+      accountId:
+        type: integer
       fio:
         type: string
+      id:
+        type: integer
+      phoneNumber:
+        type: string
+    type: object
+  entities.Group:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      teacherId:
+        type: integer
+    type: object
+  entities.Student:
+    properties:
+      accountId:
+        type: integer
+      fio:
+        type: string
+      groupId:
+        type: integer
       groupName:
+        type: string
+      id:
+        type: integer
+      phoneNumber:
+        type: string
+    type: object
+  entities.Teacher:
+    properties:
+      accountId:
+        type: integer
+      fio:
         type: string
       id:
         type: integer
@@ -28,26 +65,126 @@ definitions:
         type: string
       password:
         type: string
+      role:
+        type: string
+    type: object
+  requests.CreateAdminRequest:
+    properties:
+      account_id:
+        type: integer
+      fio:
+        type: string
+      phone_number:
+        type: string
+    type: object
+  requests.CreateGroupRequest:
+    properties:
+      name:
+        type: string
+      teacher_id:
+        type: integer
     type: object
   requests.CreateStudentRequest:
     properties:
+      account_id:
+        type: integer
       fio:
         type: string
+      group_id:
+        type: integer
       group_name:
         type: string
       phone_number:
         type: string
     type: object
-  requests.UpdateStudentRequest:
+  requests.CreateTeacherRequest:
     properties:
+      account_id:
+        type: integer
       fio:
         type: string
+      phone_number:
+        type: string
+    type: object
+  requests.UpdateAdminRequest:
+    properties:
+      account_id:
+        type: integer
+      fio:
+        type: string
+      id:
+        type: integer
+      phone_number:
+        type: string
+    type: object
+  requests.UpdateGroupRequest:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      teacher_id:
+        type: integer
+    type: object
+  requests.UpdateStudentRequest:
+    properties:
+      account_id:
+        type: integer
+      fio:
+        type: string
+      group_id:
+        type: integer
       group_name:
         type: string
       id:
         type: integer
       phone_number:
         type: string
+    type: object
+  requests.UpdateTeacherRequest:
+    properties:
+      account_id:
+        type: integer
+      fio:
+        type: string
+      id:
+        type: integer
+      phone_number:
+        type: string
+    type: object
+  usecases.ReadAdminResponseDto:
+    properties:
+      admin:
+        $ref: '#/definitions/entities.Admin'
+    type: object
+  usecases.ReadAllGroupsResponseDto:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/entities.Group'
+        type: array
+    type: object
+  usecases.ReadAllStudentsByGroupIdResponseDto:
+    properties:
+      students:
+        items:
+          $ref: '#/definitions/entities.Student'
+        type: array
+    type: object
+  usecases.ReadGroupResponseDto:
+    properties:
+      group:
+        $ref: '#/definitions/entities.Group'
+    type: object
+  usecases.ReadStudentResponseDto:
+    properties:
+      student:
+        $ref: '#/definitions/entities.Student'
+    type: object
+  usecases.ReadTeacherResponseDto:
+    properties:
+      teacher:
+        $ref: '#/definitions/entities.Teacher'
     type: object
 host: localhost:8000
 info:
@@ -86,11 +223,91 @@ paths:
       summary: Create account
       tags:
       - account
+  /api/create-admin:
+    post:
+      consumes:
+      - application/json
+      description: Create a new admin (admin only)
+      parameters:
+      - description: Admin info
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Admin'
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Create admin
+      tags:
+      - admins
+  /api/create-group:
+    post:
+      consumes:
+      - application/json
+      description: Create a new group (admin only)
+      parameters:
+      - description: Group info
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Group'
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Create group
+      tags:
+      - groups
   /api/create-student:
     post:
       consumes:
       - application/json
-      description: Create a new student
+      description: Create a new student (admin only)
       parameters:
       - description: Student info
         in: body
@@ -106,11 +323,19 @@ paths:
           schema:
             $ref: '#/definitions/entities.Student'
         "400":
-          description: Bad Request
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
           schema:
             type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             type: object
       security:
@@ -118,9 +343,119 @@ paths:
       summary: Create student
       tags:
       - students
+  /api/create-teacher:
+    post:
+      consumes:
+      - application/json
+      description: Create a new teacher (admin only)
+      parameters:
+      - description: Teacher info
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.Teacher'
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Create teacher
+      tags:
+      - teachers
+  /api/delete-admin:
+    delete:
+      description: Delete admin by ID (admin only)
+      parameters:
+      - description: Admin ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid admin ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Delete admin
+      tags:
+      - admins
+  /api/delete-group:
+    delete:
+      description: Delete group by ID (admin only)
+      parameters:
+      - description: Group ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid group ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Delete group
+      tags:
+      - groups
   /api/delete-student:
     delete:
-      description: Delete student by ID
+      description: Delete student by ID (admin only)
       parameters:
       - description: Student ID
         in: query
@@ -133,11 +468,19 @@ paths:
         "200":
           description: OK
         "400":
-          description: Bad Request
+          description: Invalid student ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
           schema:
             type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             type: object
       security:
@@ -145,9 +488,108 @@ paths:
       summary: Delete student
       tags:
       - students
+  /api/delete-teacher:
+    delete:
+      description: Delete teacher by ID (admin only)
+      parameters:
+      - description: Teacher ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid teacher ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Delete teacher
+      tags:
+      - teachers
+  /api/read-admin:
+    get:
+      description: Get admin by ID (admin only)
+      parameters:
+      - description: Admin ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecases.ReadAdminResponseDto'
+        "400":
+          description: Invalid admin ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get admin by ID
+      tags:
+      - admins
+  /api/read-all-groups:
+    get:
+      description: Get list of all groups (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecases.ReadAllGroupsResponseDto'
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get all groups
+      tags:
+      - groups
   /api/read-all-students:
     get:
-      description: Returns list of all students
+      description: Returns list of all students (admin only)
       produces:
       - application/json
       responses:
@@ -157,16 +599,132 @@ paths:
             items:
               $ref: '#/definitions/entities.Student'
             type: array
-        "500":
-          description: Internal Server Error
+        "401":
+          description: Unauthorized
           schema:
             type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
       summary: Get all students
       tags:
       - students
+  /api/read-all-students-by-group-id:
+    get:
+      description: Students of group (student sees own group, teacher sees own group,
+        admin sees all)
+      parameters:
+      - description: Group ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecases.ReadAllStudentsByGroupIdResponseDto'
+        "400":
+          description: Invalid group ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get students by group ID
+      tags:
+      - students
+  /api/read-all-teachers:
+    get:
+      description: Returns list of all teachers (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entities.Teacher'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get all teachers
+      tags:
+      - teachers
+  /api/read-group:
+    get:
+      description: Get group by ID (student, teacher or admin). Students and teachers
+        are allowed to access only their group.
+      parameters:
+      - description: Group ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecases.ReadGroupResponseDto'
+        "400":
+          description: Invalid group ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get group by ID
+      tags:
+      - groups
   /api/read-student:
     get:
-      description: Returns a student by ID
+      description: Returns student by ID. Accessible by student (self), teacher of
+        group, or admin
       parameters:
       - description: Student ID
         in: query
@@ -179,23 +737,151 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entities.Student'
+            $ref: '#/definitions/usecases.ReadStudentResponseDto'
         "400":
-          description: Bad Request
+          description: Invalid student ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
           schema:
             type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             type: object
+      security:
+      - BasicAuth: []
       summary: Get student by ID
       tags:
       - students
+  /api/read-teacher:
+    get:
+      description: Get teacher by ID (teacher sees self, admin sees all, students
+        forbidden)
+      parameters:
+      - description: Teacher ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usecases.ReadTeacherResponseDto'
+        "400":
+          description: Invalid teacher ID
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Get teacher by ID
+      tags:
+      - teachers
+  /api/update-admin:
+    put:
+      consumes:
+      - application/json
+      description: Update admin info (admin only)
+      parameters:
+      - description: Updated admin info
+        in: body
+        name: admin
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Admin'
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update admin
+      tags:
+      - admins
+  /api/update-group:
+    put:
+      consumes:
+      - application/json
+      description: Update group info (admin only)
+      parameters:
+      - description: Updated group info
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Group'
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update group
+      tags:
+      - groups
   /api/update-student:
     put:
       consumes:
       - application/json
-      description: Update student info
+      description: Update a student record.
       parameters:
       - description: Updated student info
         in: body
@@ -211,11 +897,19 @@ paths:
           schema:
             $ref: '#/definitions/entities.Student'
         "400":
-          description: Bad Request
+          description: Invalid request body
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Access forbidden
           schema:
             type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
             type: object
       security:
@@ -223,6 +917,46 @@ paths:
       summary: Update student
       tags:
       - students
+  /api/update-teacher:
+    put:
+      consumes:
+      - application/json
+      description: Update teacher info (teacher updates self, admin updates any)
+      parameters:
+      - description: Updated teacher info
+        in: body
+        name: teacher
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateTeacherRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.Teacher'
+        "400":
+          description: Invalid request
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            type: object
+      security:
+      - BasicAuth: []
+      summary: Update teacher
+      tags:
+      - teachers
 securityDefinitions:
   BasicAuth:
     in: header

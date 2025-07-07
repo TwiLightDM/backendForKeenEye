@@ -1,9 +1,7 @@
 package requests
 
-type CreateStudentRequest struct {
+type CreateTeacherRequest struct {
 	Fio         string `json:"fio"`
-	GroupName   string `json:"group_name"`
 	PhoneNumber string `json:"phone_number"`
-	GroupId     int    `json:"group_id"`
 	AccountId   int    `json:"account_id"`
 }

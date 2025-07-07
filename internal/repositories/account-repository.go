@@ -19,8 +19,8 @@ func NewAccountRepository(pool *pgxpool.Pool, builder squirrel.StatementBuilderT
 func (repo *AccountRepository) Create(ctx context.Context, Account entities.Account) (int, error) {
 	sql, args, err := repo.builder.
 		Insert("accounts").
-		Columns("login", "password", "salt").
-		Values(Account.Login, Account.Password, Account.Salt).
+		Columns("login", "password", "salt", "role").
+		Values(Account.Login, Account.Password, Account.Salt, Account.Role).
 		Suffix("RETURNING id").
 		ToSql()
 
@@ -39,9 +39,9 @@ func (repo *AccountRepository) Create(ctx context.Context, Account entities.Acco
 
 func (repo *AccountRepository) ReadByLogin(ctx context.Context, login string) (entities.Account, error) {
 	var id int
-	var password, salt string
+	var password, salt, role string
 	sql, args, err := repo.builder.
-		Select("id", "password", "salt").
+		Select("id", "password", "salt", "role").
 		From("accounts").
 		Where(squirrel.Eq{"login": login}).
 		ToSql()
@@ -54,18 +54,19 @@ func (repo *AccountRepository) ReadByLogin(ctx context.Context, login string) (e
 		&id,
 		&password,
 		&salt,
+		&role,
 	)
 	if err != nil {
 		return entities.Account{}, SqlReadError
 	}
 
-	return entities.Account{Id: id, Login: login, Password: password, Salt: salt}, nil
+	return entities.Account{Id: id, Login: login, Password: password, Salt: salt, Role: role}, nil
 }
 
 func (repo *AccountRepository) ReadById(ctx context.Context, id int) (entities.Account, error) {
-	var login, password, salt string
+	var login, password, salt, role string
 	sql, args, err := repo.builder.
-		Select("login", "password", "salt").
+		Select("login", "password", "salt", "role").
 		From("accounts").
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
@@ -78,10 +79,11 @@ func (repo *AccountRepository) ReadById(ctx context.Context, id int) (entities.A
 		&login,
 		&password,
 		&salt,
+		&role,
 	)
 	if err != nil {
 		return entities.Account{}, SqlReadError
 	}
 
-	return entities.Account{Id: id, Login: login, Password: password, Salt: salt}, nil
+	return entities.Account{Id: id, Login: login, Password: password, Salt: salt, Role: role}, nil
 }

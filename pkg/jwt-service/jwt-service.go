@@ -21,14 +21,6 @@ func NewJWTService(key string, accessTime, refreshTime time.Duration) *JWTServic
 	}
 }
 
-func (s *JWTService) GetAccessTime() time.Duration {
-	return s.AccessTime
-}
-
-func (s *JWTService) GetRefreshTime() time.Duration {
-	return s.RefreshTime
-}
-
 func (s *JWTService) generateJWT(data map[string]any, expiration int64) (string, error) {
 	claims := jwt.MapClaims{
 		"exp": expiration,

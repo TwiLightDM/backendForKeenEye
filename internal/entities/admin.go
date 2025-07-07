@@ -1,10 +1,8 @@
 package entities
 
-type Student struct {
+type Admin struct {
 	Id          int
 	Fio         string
-	GroupName   string
 	PhoneNumber string
-	GroupId     int
 	AccountId   int
 }

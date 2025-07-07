@@ -15,6 +15,7 @@ type CreateAccountUsecase struct {
 type CreateAccountRequestDto struct {
 	Login    string
 	Password string
+	Role     string
 }
 
 type CreateAccountResponseDto struct {
@@ -34,7 +35,12 @@ func (uc *CreateAccountUsecase) CreateAccount(ctx context.Context, request Creat
 		return response, HashPasswordError
 	}
 
-	Account := entities.Account{Login: request.Login, Password: hashedPassword, Salt: salt}
+	Account := entities.Account{Login: request.Login, Password: hashedPassword, Salt: salt, Role: request.Role}
+
+	_, err = Account.Validate()
+	if err != nil {
+		return response, ValidationError
+	}
 
 	id, err := uc.accountRepo.Create(ctx, Account)
 	if err != nil {
