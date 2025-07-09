@@ -15,115 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/create-account": {
-            "post": {
-                "description": "Register a new user account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "account"
-                ],
-                "summary": "Create account",
-                "parameters": [
-                    {
-                        "description": "Account credentials",
-                        "name": "account",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requests.CreateAccountRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/entities.Account"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/create-admin": {
-            "post": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Create a new admin (admin only)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "admins"
-                ],
-                "summary": "Create admin",
-                "parameters": [
-                    {
-                        "description": "Admin info",
-                        "name": "admin",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requests.CreateAdminRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/entities.Admin"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
         "/api/create-group": {
             "post": {
                 "security": [
@@ -187,14 +78,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/create-student": {
+        "/api/create-user": {
             "post": {
                 "security": [
                     {
                         "BasicAuth": []
                     }
                 ],
-                "description": "Create a new student (admin only)",
+                "description": "Create a new user (admin only)",
                 "consumes": [
                     "application/json"
                 ],
@@ -202,17 +93,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "students"
+                    "users"
                 ],
-                "summary": "Create student",
+                "summary": "Create user",
                 "parameters": [
                     {
-                        "description": "Student info",
-                        "name": "student",
+                        "description": "User info",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/requests.CreateStudentRequest"
+                            "$ref": "#/definitions/requests.CreateUserRequest"
                         }
                     }
                 ],
@@ -220,70 +111,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entities.Student"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "type": "object"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/create-teacher": {
-            "post": {
-                "security": [
-                    {
-                        "BasicAuth": []
-                    }
-                ],
-                "description": "Create a new teacher (admin only)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "teachers"
-                ],
-                "summary": "Create teacher",
-                "parameters": [
-                    {
-                        "description": "Teacher info",
-                        "name": "teacher",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/requests.CreateTeacherRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/entities.Teacher"
+                            "$ref": "#/definitions/entities.User"
                         }
                     },
                     "400": {
@@ -1212,32 +1040,9 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entities.Account": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "login": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "salt": {
-                    "type": "string"
-                }
-            }
-        },
         "entities.Admin": {
             "type": "object",
             "properties": {
-                "accountId": {
-                    "type": "integer"
-                },
                 "fio": {
                     "type": "string"
                 },
@@ -1266,17 +1071,11 @@ const docTemplate = `{
         "entities.Student": {
             "type": "object",
             "properties": {
-                "accountId": {
-                    "type": "integer"
-                },
                 "fio": {
                     "type": "string"
                 },
                 "groupId": {
                     "type": "integer"
-                },
-                "groupName": {
-                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -1289,9 +1088,6 @@ const docTemplate = `{
         "entities.Teacher": {
             "type": "object",
             "properties": {
-                "accountId": {
-                    "type": "integer"
-                },
                 "fio": {
                     "type": "string"
                 },
@@ -1303,9 +1099,12 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.CreateAccountRequest": {
+        "entities.User": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "login": {
                     "type": "string"
                 },
@@ -1314,19 +1113,8 @@ const docTemplate = `{
                 },
                 "role": {
                     "type": "string"
-                }
-            }
-        },
-        "requests.CreateAdminRequest": {
-            "type": "object",
-            "properties": {
-                "account_id": {
-                    "type": "integer"
                 },
-                "fio": {
-                    "type": "string"
-                },
-                "phone_number": {
+                "salt": {
                     "type": "string"
                 }
             }
@@ -1342,36 +1130,16 @@ const docTemplate = `{
                 }
             }
         },
-        "requests.CreateStudentRequest": {
+        "requests.CreateUserRequest": {
             "type": "object",
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
-                "fio": {
+                "login": {
                     "type": "string"
                 },
-                "group_id": {
-                    "type": "integer"
-                },
-                "group_name": {
+                "password": {
                     "type": "string"
                 },
-                "phone_number": {
-                    "type": "string"
-                }
-            }
-        },
-        "requests.CreateTeacherRequest": {
-            "type": "object",
-            "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
-                "fio": {
-                    "type": "string"
-                },
-                "phone_number": {
+                "role": {
                     "type": "string"
                 }
             }
@@ -1379,9 +1147,6 @@ const docTemplate = `{
         "requests.UpdateAdminRequest": {
             "type": "object",
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "fio": {
                     "type": "string"
                 },
@@ -1410,17 +1175,11 @@ const docTemplate = `{
         "requests.UpdateStudentRequest": {
             "type": "object",
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "fio": {
                     "type": "string"
                 },
                 "group_id": {
                     "type": "integer"
-                },
-                "group_name": {
-                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -1433,9 +1192,6 @@ const docTemplate = `{
         "requests.UpdateTeacherRequest": {
             "type": "object",
             "properties": {
-                "account_id": {
-                    "type": "integer"
-                },
                 "fio": {
                     "type": "string"
                 },

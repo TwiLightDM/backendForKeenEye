@@ -11,64 +11,14 @@ import (
 )
 
 type TeacherController struct {
-	createTeacherUsecase   CreateTeacherUsecase
 	readAllTeachersUsecase ReadAllTeachersUsecase
 	readTeacherUsecase     ReadTeacherUsecase
 	updateTeacherUsecase   UpdateTeacherUsecase
 	deleteTeacherUsecase   DeleteTeacherUsecase
 }
 
-func NewTeacherController(createTeacherUsecase CreateTeacherUsecase, readAllTeachersUsecase ReadAllTeachersUsecase, readTeacherUsecase ReadTeacherUsecase, updateTeacherUsecase UpdateTeacherUsecase, deleteTeacherUsecase DeleteTeacherUsecase) TeacherController {
-	return TeacherController{createTeacherUsecase: createTeacherUsecase, readAllTeachersUsecase: readAllTeachersUsecase, readTeacherUsecase: readTeacherUsecase, updateTeacherUsecase: updateTeacherUsecase, deleteTeacherUsecase: deleteTeacherUsecase}
-}
-
-// CreateTeacher
-// @Summary      Create teacher
-// @Description  Create a new teacher (admin only)
-// @Tags         teachers
-// @Security     BasicAuth
-// @Accept       json
-// @Produce      json
-// @Param        teacher body requests.CreateTeacherRequest true "Teacher info"
-// @Success      201 {object} entities.Teacher
-// @Failure      400 {object} object "Invalid request"
-// @Failure      401 {object} object "Unauthorized"
-// @Failure      403 {object} object "Forbidden"
-// @Failure      500 {object} object "Internal server error"
-// @Router       /api/create-teacher [post]
-func (controller *TeacherController) CreateTeacher(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	account, ok := accountRaw.(entities.Account)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if account.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
-	req := requests.CreateTeacherRequest{}
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	data, err := controller.createTeacherUsecase.CreateTeacher(c, usecases.CreateTeacherRequestDto{Fio: req.Fio, PhoneNumber: req.PhoneNumber, AccountId: req.AccountId})
-	if err != nil {
-		fmt.Println("failed to create teacher", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	c.JSON(http.StatusCreated, data)
+func NewTeacherController(readAllTeachersUsecase ReadAllTeachersUsecase, readTeacherUsecase ReadTeacherUsecase, updateTeacherUsecase UpdateTeacherUsecase, deleteTeacherUsecase DeleteTeacherUsecase) TeacherController {
+	return TeacherController{readAllTeachersUsecase: readAllTeachersUsecase, readTeacherUsecase: readTeacherUsecase, updateTeacherUsecase: updateTeacherUsecase, deleteTeacherUsecase: deleteTeacherUsecase}
 }
 
 // ReadAllTeachers
@@ -83,19 +33,19 @@ func (controller *TeacherController) CreateTeacher(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/read-all-teachers [get]
 func (controller *TeacherController) ReadAllTeachers(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
@@ -240,7 +190,7 @@ func (controller *TeacherController) UpdateTeacher(c *gin.Context) {
 		return
 	}
 
-	data, err := controller.updateTeacherUsecase.UpdateTeacher(c, usecases.UpdateTeacherRequestDto{Id: req.Id, Fio: req.Fio, PhoneNumber: req.PhoneNumber, AccountId: req.AccountId})
+	data, err := controller.updateTeacherUsecase.UpdateTeacher(c, usecases.UpdateTeacherRequestDto{Id: req.Id, Fio: req.Fio, PhoneNumber: req.PhoneNumber})
 	if err != nil {
 		fmt.Println("failed to update teacher")
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -264,19 +214,19 @@ func (controller *TeacherController) UpdateTeacher(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/delete-teacher [delete]
 func (controller *TeacherController) DeleteTeacher(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}

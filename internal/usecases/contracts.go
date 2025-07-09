@@ -16,10 +16,6 @@ type JWTGenerator interface {
 	ParseJWT(tokenString string) (map[string]any, error)
 }
 
-type CreateStudentRepository interface {
-	Create(ctx context.Context, student entities.Student) (int, error)
-}
-
 type ReadAllStudentsRepository interface {
 	Read(ctx context.Context) ([]entities.Student, error)
 }
@@ -30,7 +26,6 @@ type ReadAllStudentsByGroupIdRepository interface {
 
 type ReadStudentRepository interface {
 	ReadById(ctx context.Context, id int) (entities.Student, error)
-	ReadByAccountId(ctx context.Context, accountId int) (entities.Student, error)
 }
 
 type UpdateStudentRepository interface {
@@ -38,20 +33,16 @@ type UpdateStudentRepository interface {
 }
 
 type DeleteStudentRepository interface {
-	Delete(ctx context.Context, id int) error
+	SoftDelete(ctx context.Context, id int) error
 }
 
-type CreateAccountRepository interface {
-	Create(ctx context.Context, student entities.Account) (int, error)
+type CreateUserRepository interface {
+	Create(ctx context.Context, student entities.User) (int, error)
 }
 
-type ReadAccountRepository interface {
-	ReadByLogin(ctx context.Context, login string) (entities.Account, error)
-	ReadById(ctx context.Context, id int) (entities.Account, error)
-}
-
-type CreateTeacherRepository interface {
-	Create(ctx context.Context, teacher entities.Teacher) (int, error)
+type ReadUserRepository interface {
+	ReadByLogin(ctx context.Context, login string) (entities.User, error)
+	ReadById(ctx context.Context, id int) (entities.User, error)
 }
 
 type ReadAllTeachersRepository interface {
@@ -60,7 +51,6 @@ type ReadAllTeachersRepository interface {
 
 type ReadTeacherRepository interface {
 	ReadById(ctx context.Context, id int) (entities.Teacher, error)
-	ReadByAccountId(ctx context.Context, accountId int) (entities.Teacher, error)
 }
 
 type UpdateTeacherRepository interface {
@@ -91,13 +81,8 @@ type DeleteGroupRepository interface {
 	SoftDelete(ctx context.Context, id int) error
 }
 
-type CreateAdminRepository interface {
-	Create(ctx context.Context, teacher entities.Admin) (int, error)
-}
-
 type ReadAdminRepository interface {
 	ReadById(ctx context.Context, id int) (entities.Admin, error)
-	ReadByAccountId(ctx context.Context, accountId int) (entities.Admin, error)
 }
 
 type UpdateAdminRepository interface {
@@ -105,5 +90,5 @@ type UpdateAdminRepository interface {
 }
 
 type DeleteAdminRepository interface {
-	Delete(ctx context.Context, id int) error
+	SoftDelete(ctx context.Context, id int) error
 }

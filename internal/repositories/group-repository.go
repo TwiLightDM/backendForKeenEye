@@ -3,6 +3,7 @@ package repositories
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,11 +18,18 @@ func NewGroupRepository(pool *pgxpool.Pool, builder squirrel.StatementBuilderTyp
 	return &GroupRepository{pool: pool, builder: builder}
 }
 
-func (repo *GroupRepository) Create(ctx context.Context, Group entities.Group) (int, error) {
+func (repo *GroupRepository) Create(ctx context.Context, group entities.Group) (int, error) {
+	var teacherId any
+	if group.TeacherId == 0 {
+		teacherId = nil
+	} else {
+		teacherId = group.TeacherId
+	}
+
 	sql, args, err := repo.builder.
 		Insert("groups").
 		Columns("name", "teacher_id").
-		Values(Group.Name, Group.TeacherId).
+		Values(group.Name, teacherId).
 		Suffix("RETURNING id").
 		ToSql()
 
@@ -39,6 +47,9 @@ func (repo *GroupRepository) Create(ctx context.Context, Group entities.Group) (
 }
 
 func (repo *GroupRepository) Read(ctx context.Context) ([]entities.Group, error) {
+	var id int
+	var name sql.NullString
+	var teacherId sql.NullInt32
 	sql, args, err := repo.builder.
 		Select("id", "name", "teacher_id").
 		From("groups").
@@ -57,17 +68,21 @@ func (repo *GroupRepository) Read(ctx context.Context) ([]entities.Group, error)
 
 	var groups []entities.Group
 	for rows.Next() {
-		var student entities.Group
 		err = rows.Scan(
-			&student.Id,
-			&student.Name,
-			&student.TeacherId,
+			&id,
+			&name,
+			&teacherId,
 		)
 		if err != nil {
 			return nil, SqlScanError
 		}
 
-		groups = append(groups, student)
+		group := entities.Group{
+			Id:        id,
+			Name:      validateString(name),
+			TeacherId: validateInt(teacherId),
+		}
+		groups = append(groups, group)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -78,8 +93,8 @@ func (repo *GroupRepository) Read(ctx context.Context) ([]entities.Group, error)
 }
 
 func (repo *GroupRepository) ReadById(ctx context.Context, id int) (entities.Group, error) {
-	var name, group string
-	var teacherId int
+	var name sql.NullString
+	var teacherId sql.NullInt32
 
 	sql, args, err := repo.builder.
 		Select("name", "teacher_id").
@@ -93,40 +108,39 @@ func (repo *GroupRepository) ReadById(ctx context.Context, id int) (entities.Gro
 
 	err = repo.pool.QueryRow(ctx, sql, args...).Scan(
 		&name,
-		&group,
 		&teacherId,
 	)
 	if err != nil {
 		return entities.Group{}, SqlReadError
 	}
 
-	return entities.Group{Id: id, Name: name, TeacherId: teacherId}, nil
+	return entities.Group{Id: id, Name: validateString(name), TeacherId: validateInt(teacherId)}, nil
 }
 
 func (repo *GroupRepository) Update(ctx context.Context, id int, updates map[string]any) (entities.Group, error) {
+	var name sql.NullString
+	var teacherId sql.NullInt32
 	sql, args, err := repo.builder.
 		Update("groups").
 		Where(squirrel.Eq{"id": id}).
 		SetMap(updates).
-		Suffix("RETURNING id, name, phone_number").
+		Suffix("RETURNING name, teacher_id").
 		ToSql()
 
 	if err != nil {
 		return entities.Group{}, SqlStatementError
 	}
 
-	var student entities.Group
 	err = repo.pool.QueryRow(ctx, sql, args...).Scan(
-		&student.Id,
-		&student.Name,
-		&student.TeacherId,
+		&name,
+		&teacherId,
 	)
 
 	if err != nil {
 		return entities.Group{}, SqlUpdateError
 	}
 
-	return student, nil
+	return entities.Group{Id: id, Name: validateString(name), TeacherId: validateInt(teacherId)}, nil
 }
 
 func (repo *GroupRepository) SoftDelete(ctx context.Context, id int) error {

@@ -2,7 +2,7 @@ package entities
 
 var allowedRoles = []string{"admin", "student", "teacher"}
 
-type Account struct {
+type User struct {
 	Id       int
 	Login    string
 	Password string
@@ -10,7 +10,7 @@ type Account struct {
 	Role     string
 }
 
-func (a Account) Validate() (bool, error) {
+func (a User) Validate() (bool, error) {
 	if validateRole(a.Role) == false {
 		return false, InvalidRoleError
 	}

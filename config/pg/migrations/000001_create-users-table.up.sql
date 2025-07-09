@@ -1,4 +1,4 @@
-CREATE TABLE accounts
+CREATE TABLE users
 (
     id       int generated always as identity primary key,
     login    varchar(256),

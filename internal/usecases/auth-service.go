@@ -7,7 +7,7 @@ import (
 )
 
 type AuthService struct {
-	accountRepo ReadAccountRepository
+	userRepo    ReadUserRepository
 	studentRepo ReadStudentRepository
 	teacherRepo ReadTeacherRepository
 	adminRepo   ReadAdminRepository
@@ -15,45 +15,45 @@ type AuthService struct {
 	jwt         JWTGenerator
 }
 
-func NewAuthService(accountRepo ReadAccountRepository, studentRepo ReadStudentRepository, teacherRepo ReadTeacherRepository, adminRepo ReadAdminRepository, encryption Cryptographer, jwt JWTGenerator) *AuthService {
-	return &AuthService{accountRepo: accountRepo, studentRepo: studentRepo, teacherRepo: teacherRepo, adminRepo: adminRepo, encryption: encryption, jwt: jwt}
+func NewAuthService(userRepo ReadUserRepository, studentRepo ReadStudentRepository, teacherRepo ReadTeacherRepository, adminRepo ReadAdminRepository, encryption Cryptographer, jwt JWTGenerator) *AuthService {
+	return &AuthService{userRepo: userRepo, studentRepo: studentRepo, teacherRepo: teacherRepo, adminRepo: adminRepo, encryption: encryption, jwt: jwt}
 }
 
-func (a *AuthService) GetAccountByLoginAndPassword(ctx context.Context, login, password string) (entities.Account, error) {
-	account, err := a.accountRepo.ReadByLogin(ctx, login)
+func (a *AuthService) GetUserByLoginAndPassword(ctx context.Context, login, password string) (entities.User, error) {
+	user, err := a.userRepo.ReadByLogin(ctx, login)
 	if err != nil {
-		return entities.Account{}, AccountNotFoundError
+		return entities.User{}, UserNotFoundError
 	}
 
-	_, err = a.encryption.PasswordComparison(account.Password, password, account.Salt)
+	_, err = a.encryption.PasswordComparison(user.Password, password, user.Salt)
 	if err != nil {
-		return entities.Account{}, DifferentPasswordError
+		return entities.User{}, DifferentPasswordError
 	}
 
-	return account, nil
+	return user, nil
 }
 
-func (a *AuthService) GetAccountByAccessToken(ctx context.Context, token string) (entities.Account, error) {
+func (a *AuthService) GetUserByAccessToken(ctx context.Context, token string) (entities.User, error) {
 	dataFromToken, err := a.jwt.ParseJWT(token)
 	if err != nil {
-		return entities.Account{}, fmt.Errorf("invalid token: %w", err)
+		return entities.User{}, fmt.Errorf("invalid token: %w", err)
 	}
 
-	accountID, ok := dataFromToken["sub"].(float64)
+	id, ok := dataFromToken["sub"].(float64)
 	if !ok {
-		return entities.Account{}, fmt.Errorf("invalid token payload")
+		return entities.User{}, fmt.Errorf("invalid token payload")
 	}
 
-	account, err := a.accountRepo.ReadById(ctx, int(accountID))
+	user, err := a.userRepo.ReadById(ctx, int(id))
 	if err != nil {
-		return entities.Account{}, AccountNotFoundError
+		return entities.User{}, UserNotFoundError
 	}
 
-	return account, nil
+	return user, nil
 }
 
-func (a *AuthService) GetStudentByAccountId(ctx context.Context, id int) (entities.Student, error) {
-	student, err := a.studentRepo.ReadByAccountId(ctx, id)
+func (a *AuthService) GetStudentById(ctx context.Context, id int) (entities.Student, error) {
+	student, err := a.studentRepo.ReadById(ctx, id)
 	if err != nil {
 		return entities.Student{}, UserAccountNotFoundError
 	}
@@ -61,8 +61,8 @@ func (a *AuthService) GetStudentByAccountId(ctx context.Context, id int) (entiti
 	return student, nil
 }
 
-func (a *AuthService) GetTeacherByAccountId(ctx context.Context, id int) (entities.Teacher, error) {
-	teacher, err := a.teacherRepo.ReadByAccountId(ctx, id)
+func (a *AuthService) GetTeacherById(ctx context.Context, id int) (entities.Teacher, error) {
+	teacher, err := a.teacherRepo.ReadById(ctx, id)
 	if err != nil {
 		return entities.Teacher{}, UserAccountNotFoundError
 	}
@@ -70,8 +70,8 @@ func (a *AuthService) GetTeacherByAccountId(ctx context.Context, id int) (entiti
 	return teacher, nil
 }
 
-func (a *AuthService) GetAdminByAccountId(ctx context.Context, id int) (entities.Admin, error) {
-	admin, err := a.adminRepo.ReadByAccountId(ctx, id)
+func (a *AuthService) GetAdminById(ctx context.Context, id int) (entities.Admin, error) {
+	admin, err := a.adminRepo.ReadById(ctx, id)
 	if err != nil {
 		return entities.Admin{}, UserAccountNotFoundError
 	}

@@ -21,7 +21,7 @@ type Container struct {
 
 	PGClient *postgres.Client
 
-	AccountController controllers.AccountController
+	UserController    controllers.UserController
 	StudentController controllers.StudentController
 	TeacherController controllers.TeacherController
 	AdminController   controllers.AdminController
@@ -50,29 +50,26 @@ func NewContainer() *Container {
 	jwt := jwtService.NewJWTService(cfg.Key, cfg.AccessTime, cfg.RefreshTime)
 
 	studentRepo := repositories.NewStudentRepository(pgClient.Pool, pgClient.Builder)
-	accountRepo := repositories.NewAccountRepository(pgClient.Pool, pgClient.Builder)
+	userRepo := repositories.NewUserRepository(pgClient.Pool, pgClient.Builder)
 	teacherRepo := repositories.NewTeacherRepository(pgClient.Pool, pgClient.Builder)
 	adminRepo := repositories.NewAdminRepository(pgClient.Pool, pgClient.Builder)
 	groupRepo := repositories.NewGroupRepository(pgClient.Pool, pgClient.Builder)
 
-	authService := usecases.NewAuthService(accountRepo, studentRepo, teacherRepo, adminRepo, encryption, jwt)
+	authService := usecases.NewAuthService(userRepo, studentRepo, teacherRepo, adminRepo, encryption, jwt)
 
-	createStudent := usecases.NewCreateStudentUsecase(studentRepo)
 	readAllStudents := usecases.NewReadAllStudentsUsecase(studentRepo)
 	readAllStudentsByGroupId := usecases.NewReadAllStudentsByGroupIdUsecase(studentRepo)
 	readStudent := usecases.NewReadStudentUsecase(studentRepo)
 	updateStudent := usecases.NewUpdateStudentUsecase(studentRepo)
 	deleteStudent := usecases.NewDeleteStudentUsecase(studentRepo)
 
-	createAccount := usecases.NewCreateAccountUsecase(accountRepo, encryption, jwt)
+	createUser := usecases.NewCreateUserUsecase(userRepo, encryption, jwt)
 
-	createTeacher := usecases.NewCreateTeacherUsecase(teacherRepo)
 	readAllTeachers := usecases.NewReadAllTeachersUsecase(teacherRepo)
 	readTeacher := usecases.NewReadTeacherUsecase(teacherRepo)
 	updateTeacher := usecases.NewUpdateTeacherUsecase(teacherRepo)
 	deleteTeacher := usecases.NewDeleteTeacherUsecase(teacherRepo)
 
-	createAdmin := usecases.NewCreateAdminUsecase(adminRepo)
 	readAdmin := usecases.NewReadAdminUsecase(adminRepo)
 	updateAdmin := usecases.NewUpdateAdminUsecase(adminRepo)
 	deleteAdmin := usecases.NewDeleteAdminUsecase(adminRepo)
@@ -83,11 +80,10 @@ func NewContainer() *Container {
 	updateGroup := usecases.NewUpdateGroupUsecase(groupRepo)
 	deleteGroup := usecases.NewDeleteGroupUsecase(groupRepo)
 
-	accountController := controllers.NewAccountController(&createAccount)
+	accountController := controllers.NewUserController(&createUser)
 
 	studentController := controllers.NewStudentController(
 		&readGroup,
-		&createStudent,
 		&readAllStudents,
 		&readAllStudentsByGroupId,
 		&readStudent,
@@ -96,7 +92,6 @@ func NewContainer() *Container {
 	)
 
 	teacherController := controllers.NewTeacherController(
-		&createTeacher,
 		&readAllTeachers,
 		&readTeacher,
 		&updateTeacher,
@@ -104,7 +99,6 @@ func NewContainer() *Container {
 	)
 
 	adminController := controllers.NewAdminController(
-		&createAdmin,
 		&readAdmin,
 		&updateAdmin,
 		&deleteAdmin,
@@ -122,7 +116,7 @@ func NewContainer() *Container {
 		Cfg:               *cfg,
 		Ctx:               ctx,
 		PGClient:          pgClient,
-		AccountController: accountController,
+		UserController:    accountController,
 		StudentController: studentController,
 		TeacherController: teacherController,
 		AdminController:   adminController,

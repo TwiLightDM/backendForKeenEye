@@ -18,7 +18,7 @@ func NewDeleteAdminUsecase(AdminRepo DeleteAdminRepository) DeleteAdminUsecase {
 
 func (uc *DeleteAdminUsecase) DeleteAdmin(ctx context.Context, request DeleteAdminRequestDto) error {
 
-	err := uc.AdminRepo.Delete(ctx, request.Id)
+	err := uc.AdminRepo.SoftDelete(ctx, request.Id)
 	if err != nil {
 		return DeleteError
 	}

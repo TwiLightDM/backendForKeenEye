@@ -1,3 +1,5 @@
 DROP TABLE IF EXISTS teachers;
 
 DROP TABLE IF EXISTS admins;
+
+DROP TABLE IF EXISTS groups;

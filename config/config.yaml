@@ -4,8 +4,7 @@ http:
 pg:
   user: "postgres_user"
   password: "superStrongPassword"
-  host: "localhost"
-  ost: "keen-eye-database"
+  host: "keen-eye-database"
   port: "5432"
   database: "keen_eye"
   max_pool_size: 6
@@ -16,5 +15,5 @@ encryption:
   salt_length: 10
 jwt:
   key: "difficultKey"
-  access_time: 1h
-  refresh_time: 24h
+  access_time: 24h
+  refresh_time: 720h

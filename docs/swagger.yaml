@@ -1,22 +1,7 @@
 basePath: /
 definitions:
-  entities.Account:
-    properties:
-      id:
-        type: integer
-      login:
-        type: string
-      password:
-        type: string
-      role:
-        type: string
-      salt:
-        type: string
-    type: object
   entities.Admin:
     properties:
-      accountId:
-        type: integer
       fio:
         type: string
       id:
@@ -35,14 +20,10 @@ definitions:
     type: object
   entities.Student:
     properties:
-      accountId:
-        type: integer
       fio:
         type: string
       groupId:
         type: integer
-      groupName:
-        type: string
       id:
         type: integer
       phoneNumber:
@@ -50,8 +31,6 @@ definitions:
     type: object
   entities.Teacher:
     properties:
-      accountId:
-        type: integer
       fio:
         type: string
       id:
@@ -59,22 +38,17 @@ definitions:
       phoneNumber:
         type: string
     type: object
-  requests.CreateAccountRequest:
+  entities.User:
     properties:
+      id:
+        type: integer
       login:
         type: string
       password:
         type: string
       role:
         type: string
-    type: object
-  requests.CreateAdminRequest:
-    properties:
-      account_id:
-        type: integer
-      fio:
-        type: string
-      phone_number:
+      salt:
         type: string
     type: object
   requests.CreateGroupRequest:
@@ -84,32 +58,17 @@ definitions:
       teacher_id:
         type: integer
     type: object
-  requests.CreateStudentRequest:
+  requests.CreateUserRequest:
     properties:
-      account_id:
-        type: integer
-      fio:
+      login:
         type: string
-      group_id:
-        type: integer
-      group_name:
+      password:
         type: string
-      phone_number:
-        type: string
-    type: object
-  requests.CreateTeacherRequest:
-    properties:
-      account_id:
-        type: integer
-      fio:
-        type: string
-      phone_number:
+      role:
         type: string
     type: object
   requests.UpdateAdminRequest:
     properties:
-      account_id:
-        type: integer
       fio:
         type: string
       id:
@@ -128,14 +87,10 @@ definitions:
     type: object
   requests.UpdateStudentRequest:
     properties:
-      account_id:
-        type: integer
       fio:
         type: string
       group_id:
         type: integer
-      group_name:
-        type: string
       id:
         type: integer
       phone_number:
@@ -143,8 +98,6 @@ definitions:
     type: object
   requests.UpdateTeacherRequest:
     properties:
-      account_id:
-        type: integer
       fio:
         type: string
       id:
@@ -193,76 +146,6 @@ info:
   title: Backend for KeenEye
   version: 1.0.0
 paths:
-  /api/create-account:
-    post:
-      consumes:
-      - application/json
-      description: Register a new user account
-      parameters:
-      - description: Account credentials
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/requests.CreateAccountRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/entities.Account'
-        "400":
-          description: Bad Request
-          schema:
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            type: object
-      summary: Create account
-      tags:
-      - account
-  /api/create-admin:
-    post:
-      consumes:
-      - application/json
-      description: Create a new admin (admin only)
-      parameters:
-      - description: Admin info
-        in: body
-        name: admin
-        required: true
-        schema:
-          $ref: '#/definitions/requests.CreateAdminRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/entities.Admin'
-        "400":
-          description: Invalid request
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      security:
-      - BasicAuth: []
-      summary: Create admin
-      tags:
-      - admins
   /api/create-group:
     post:
       consumes:
@@ -303,25 +186,25 @@ paths:
       summary: Create group
       tags:
       - groups
-  /api/create-student:
+  /api/create-user:
     post:
       consumes:
       - application/json
-      description: Create a new student (admin only)
+      description: Create a new user (admin only)
       parameters:
-      - description: Student info
+      - description: User info
         in: body
-        name: student
+        name: user
         required: true
         schema:
-          $ref: '#/definitions/requests.CreateStudentRequest'
+          $ref: '#/definitions/requests.CreateUserRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/entities.Student'
+            $ref: '#/definitions/entities.User'
         "400":
           description: Invalid request
           schema:
@@ -340,49 +223,9 @@ paths:
             type: object
       security:
       - BasicAuth: []
-      summary: Create student
+      summary: Create user
       tags:
-      - students
-  /api/create-teacher:
-    post:
-      consumes:
-      - application/json
-      description: Create a new teacher (admin only)
-      parameters:
-      - description: Teacher info
-        in: body
-        name: teacher
-        required: true
-        schema:
-          $ref: '#/definitions/requests.CreateTeacherRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/entities.Teacher'
-        "400":
-          description: Invalid request
-          schema:
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            type: object
-        "403":
-          description: Forbidden
-          schema:
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            type: object
-      security:
-      - BasicAuth: []
-      summary: Create teacher
-      tags:
-      - teachers
+      - users
   /api/delete-admin:
     delete:
       description: Delete admin by ID (admin only)

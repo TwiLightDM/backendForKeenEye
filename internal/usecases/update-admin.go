@@ -13,7 +13,6 @@ type UpdateAdminRequestDto struct {
 	Id          int
 	Fio         string
 	PhoneNumber string
-	AccountId   int
 }
 
 type UpdateAdminResponseDto struct {
@@ -36,9 +35,6 @@ func (uc *UpdateAdminUsecase) UpdateAdmin(ctx context.Context, request UpdateAdm
 	}
 	if request.PhoneNumber != "" {
 		updates["phone_number"] = request.PhoneNumber
-	}
-	if request.AccountId != 0 {
-		updates["account_id"] = request.AccountId
 	}
 	if len(updates) == 0 {
 		return response, NoFieldsError

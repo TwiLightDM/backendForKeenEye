@@ -3,6 +3,7 @@ package repositories
 import (
 	"backendForKeenEye/internal/entities"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,32 +18,14 @@ func NewStudentRepository(pool *pgxpool.Pool, builder squirrel.StatementBuilderT
 	return &StudentRepository{pool: pool, builder: builder}
 }
 
-func (repo *StudentRepository) Create(ctx context.Context, student entities.Student) (int, error) {
-
-	sql, args, err := repo.builder.
-		Insert("students").
-		Columns("fio", "group_name", "phone_number", "account_id").
-		Values(student.Fio, student.GroupName, student.PhoneNumber, student.AccountId).
-		Suffix("RETURNING id").
-		ToSql()
-
-	if err != nil {
-		return 0, SqlStatementError
-	}
-
-	var newID int
-	err = repo.pool.QueryRow(ctx, sql, args...).Scan(&newID)
-	if err != nil {
-		return 0, SqlInsertError
-	}
-
-	return newID, nil
-}
-
 func (repo *StudentRepository) Read(ctx context.Context) ([]entities.Student, error) {
+	var id int
+	var fio, phoneNumber sql.NullString
+	var groupId sql.NullInt32
 	sql, args, err := repo.builder.
-		Select("id", "fio", "group_name", "phone_number", "account_id").
+		Select("id", "fio", "phone_number", "group_id").
 		From("students").
+		Where(squirrel.Eq{"is_deleted": false}).
 		ToSql()
 
 	if err != nil {
@@ -57,16 +40,21 @@ func (repo *StudentRepository) Read(ctx context.Context) ([]entities.Student, er
 
 	var students []entities.Student
 	for rows.Next() {
-		var student entities.Student
 		err = rows.Scan(
-			&student.Id,
-			&student.Fio,
-			&student.GroupName,
-			&student.PhoneNumber,
-			&student.AccountId,
+			&id,
+			&fio,
+			&phoneNumber,
+			&groupId,
 		)
 		if err != nil {
 			return nil, SqlScanError
+		}
+
+		var student = entities.Student{
+			Id:          id,
+			Fio:         validateString(fio),
+			PhoneNumber: validateString(phoneNumber),
+			GroupId:     validateInt(groupId),
 		}
 
 		students = append(students, student)
@@ -80,11 +68,11 @@ func (repo *StudentRepository) Read(ctx context.Context) ([]entities.Student, er
 }
 
 func (repo *StudentRepository) ReadById(ctx context.Context, id int) (entities.Student, error) {
-	var fio, groupName, phoneNumber string
-	var accountId int
+	var fio, phoneNumber sql.NullString
+	var groupId sql.NullInt32
 
 	sql, args, err := repo.builder.
-		Select("fio", "group_name", "phone_number", "account_id").
+		Select("fio", "phone_number", "group_id").
 		From("students").
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
@@ -95,20 +83,27 @@ func (repo *StudentRepository) ReadById(ctx context.Context, id int) (entities.S
 
 	err = repo.pool.QueryRow(ctx, sql, args...).Scan(
 		&fio,
-		&groupName,
 		&phoneNumber,
-		&accountId,
+		&groupId,
 	)
 	if err != nil {
 		return entities.Student{}, SqlReadError
 	}
 
-	return entities.Student{Id: id, Fio: fio, GroupName: groupName, PhoneNumber: phoneNumber, AccountId: accountId}, nil
+	return entities.Student{
+		Id:          id,
+		Fio:         validateString(fio),
+		PhoneNumber: validateString(phoneNumber),
+		GroupId:     validateInt(groupId),
+	}, nil
 }
 
 func (repo *StudentRepository) ReadByGroupId(ctx context.Context, groupId int) ([]entities.Student, error) {
+	var id int
+	var fio, phoneNumber sql.NullString
+
 	sql, args, err := repo.builder.
-		Select("id, fio, group_name, phone_number, account_id").
+		Select("id, fio, phone_number").
 		From("students").
 		Where(squirrel.Eq{"group_id": groupId}).
 		ToSql()
@@ -125,19 +120,18 @@ func (repo *StudentRepository) ReadByGroupId(ctx context.Context, groupId int) (
 
 	var students []entities.Student
 	for rows.Next() {
-		var student entities.Student
-		err = rows.Scan(
-			&student.Id,
-			&student.Fio,
-			&student.GroupName,
-			&student.PhoneNumber,
-			&student.AccountId,
-		)
+
+		err = rows.Scan(&id, &fio, &phoneNumber)
 		if err != nil {
 			return nil, SqlScanError
 		}
 
-		students = append(students, student)
+		students = append(students, entities.Student{
+			Id:          id,
+			Fio:         validateString(fio),
+			PhoneNumber: validateString(phoneNumber),
+			GroupId:     groupId,
+		})
 	}
 
 	if err = rows.Err(); err != nil {
@@ -147,65 +141,44 @@ func (repo *StudentRepository) ReadByGroupId(ctx context.Context, groupId int) (
 	return students, nil
 }
 
-func (repo *StudentRepository) ReadByAccountId(ctx context.Context, accountId int) (entities.Student, error) {
-	var fio, groupName, phoneNumber string
-	var id int
-
-	sql, args, err := repo.builder.
-		Select("id", "fio", "group_name", "phone_number").
-		From("students").
-		Where(squirrel.Eq{"account_id": accountId}).
-		ToSql()
-
-	if err != nil {
-		return entities.Student{}, SqlStatementError
-	}
-
-	err = repo.pool.QueryRow(ctx, sql, args...).Scan(
-		&id,
-		&fio,
-		&groupName,
-		&phoneNumber,
-	)
-	if err != nil {
-		return entities.Student{}, SqlReadError
-	}
-
-	return entities.Student{Id: id, Fio: fio, GroupName: groupName, PhoneNumber: phoneNumber, AccountId: accountId}, nil
-}
-
 func (repo *StudentRepository) Update(ctx context.Context, id int, updates map[string]any) (entities.Student, error) {
+	var fio, phoneNumber sql.NullString
+	var groupId sql.NullInt32
+
 	sql, args, err := repo.builder.
 		Update("students").
 		Where(squirrel.Eq{"id": id}).
 		SetMap(updates).
-		Suffix("RETURNING id, fio, group_name, phone_number, account_id").
+		Suffix("RETURNING fio, phone_number, group_id").
 		ToSql()
 
 	if err != nil {
 		return entities.Student{}, SqlStatementError
 	}
 
-	var student entities.Student
 	err = repo.pool.QueryRow(ctx, sql, args...).Scan(
-		&student.Id,
-		&student.Fio,
-		&student.GroupName,
-		&student.PhoneNumber,
-		&student.AccountId,
+		&fio,
+		&phoneNumber,
+		&groupId,
 	)
 
 	if err != nil {
 		return entities.Student{}, SqlUpdateError
 	}
 
-	return student, nil
+	return entities.Student{
+		Id:          id,
+		Fio:         validateString(fio),
+		PhoneNumber: validateString(phoneNumber),
+		GroupId:     validateInt(groupId),
+	}, nil
 }
 
-func (repo *StudentRepository) Delete(ctx context.Context, id int) error {
+func (repo *StudentRepository) SoftDelete(ctx context.Context, id int) error {
 	sql, args, err := repo.builder.
-		Delete("students").
+		Update("students").
 		Where(squirrel.Eq{"id": id}).
+		Set("is_deleted", true).
 		ToSql()
 
 	if err != nil {

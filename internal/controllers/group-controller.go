@@ -37,19 +37,19 @@ func NewGroupController(createGroupUsecase CreateGroupUsecase, readAllGroupsUsec
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/create-group [post]
 func (controller *GroupController) CreateGroup(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
@@ -83,19 +83,19 @@ func (controller *GroupController) CreateGroup(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/read-all-groups [get]
 func (controller *GroupController) ReadAllGroups(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
@@ -197,19 +197,19 @@ func (controller *GroupController) ReadGroup(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/update-group [put]
 func (controller *GroupController) UpdateGroup(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
@@ -245,19 +245,19 @@ func (controller *GroupController) UpdateGroup(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/delete-group [delete]
 func (controller *GroupController) DeleteGroup(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}

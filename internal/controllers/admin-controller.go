@@ -11,63 +11,13 @@ import (
 )
 
 type AdminController struct {
-	createAdminUsecase CreateAdminUsecase
 	readAdminUsecase   ReadAdminUsecase
 	updateAdminUsecase UpdateAdminUsecase
 	deleteAdminUsecase DeleteAdminUsecase
 }
 
-func NewAdminController(createAdminUsecase CreateAdminUsecase, readAdminUsecase ReadAdminUsecase, updateAdminUsecase UpdateAdminUsecase, deleteAdminUsecase DeleteAdminUsecase) AdminController {
-	return AdminController{createAdminUsecase: createAdminUsecase, readAdminUsecase: readAdminUsecase, updateAdminUsecase: updateAdminUsecase, deleteAdminUsecase: deleteAdminUsecase}
-}
-
-// CreateAdmin
-// @Summary      Create admin
-// @Description  Create a new admin (admin only)
-// @Tags         admins
-// @Security     BasicAuth
-// @Accept       json
-// @Produce      json
-// @Param        admin body requests.CreateAdminRequest true "Admin info"
-// @Success      201 {object} entities.Admin
-// @Failure      400 {object} object "Invalid request"
-// @Failure      401 {object} object "Unauthorized"
-// @Failure      403 {object} object "Forbidden"
-// @Failure      500 {object} object "Internal server error"
-// @Router       /api/create-admin [post]
-func (controller *AdminController) CreateAdmin(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	account, ok := accountRaw.(entities.Account)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if account.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
-	req := requests.CreateAdminRequest{}
-	err := c.ShouldBindJSON(&req)
-	if err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-		return
-	}
-
-	data, err := controller.createAdminUsecase.CreateAdmin(c, usecases.CreateAdminRequestDto{Fio: req.Fio, PhoneNumber: req.PhoneNumber, AccountId: req.AccountId})
-	if err != nil {
-		fmt.Println("failed to create admin", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	c.JSON(http.StatusCreated, data)
+func NewAdminController(readAdminUsecase ReadAdminUsecase, updateAdminUsecase UpdateAdminUsecase, deleteAdminUsecase DeleteAdminUsecase) AdminController {
+	return AdminController{readAdminUsecase: readAdminUsecase, updateAdminUsecase: updateAdminUsecase, deleteAdminUsecase: deleteAdminUsecase}
 }
 
 // ReadAdmin
@@ -84,19 +34,19 @@ func (controller *AdminController) CreateAdmin(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/read-admin [get]
 func (controller *AdminController) ReadAdmin(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
@@ -138,19 +88,19 @@ func (controller *AdminController) ReadAdmin(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/update-admin [put]
 func (controller *AdminController) UpdateAdmin(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}
@@ -162,7 +112,7 @@ func (controller *AdminController) UpdateAdmin(c *gin.Context) {
 		return
 	}
 
-	data, err := controller.updateAdminUsecase.UpdateAdmin(c, usecases.UpdateAdminRequestDto{Id: req.Id, Fio: req.Fio, PhoneNumber: req.PhoneNumber, AccountId: req.AccountId})
+	data, err := controller.updateAdminUsecase.UpdateAdmin(c, usecases.UpdateAdminRequestDto{Id: req.Id, Fio: req.Fio, PhoneNumber: req.PhoneNumber})
 	if err != nil {
 		fmt.Println("failed to update admin")
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -186,19 +136,19 @@ func (controller *AdminController) UpdateAdmin(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/delete-admin [delete]
 func (controller *AdminController) DeleteAdmin(c *gin.Context) {
-	accountRaw, exists := c.Get("account")
+	userRaw, exists := c.Get("user")
 	if !exists {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
-	account, ok := accountRaw.(entities.Account)
+	user, ok := userRaw.(entities.User)
 	if !ok {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
 
-	if account.Role != "admin" {
+	if user.Role != "admin" {
 		c.AbortWithStatus(http.StatusForbidden)
 		return
 	}

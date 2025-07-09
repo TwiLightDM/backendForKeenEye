@@ -6,43 +6,43 @@ import (
 	"fmt"
 )
 
-type CreateAccountUsecase struct {
-	accountRepo CreateAccountRepository
-	crypto      Cryptographer
-	jwt         JWTGenerator
+type CreateUserUsecase struct {
+	userRepo CreateUserRepository
+	crypto   Cryptographer
+	jwt      JWTGenerator
 }
 
-type CreateAccountRequestDto struct {
+type CreateUserRequestDto struct {
 	Login    string
 	Password string
 	Role     string
 }
 
-type CreateAccountResponseDto struct {
+type CreateUserResponseDto struct {
 	Id           int    `json:"id"`
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
-func NewCreateAccountUsecase(accountRepo CreateAccountRepository, crypto Cryptographer, jwt JWTGenerator) CreateAccountUsecase {
-	return CreateAccountUsecase{accountRepo: accountRepo, crypto: crypto, jwt: jwt}
+func NewCreateUserUsecase(userRepo CreateUserRepository, crypto Cryptographer, jwt JWTGenerator) CreateUserUsecase {
+	return CreateUserUsecase{userRepo: userRepo, crypto: crypto, jwt: jwt}
 }
 
-func (uc *CreateAccountUsecase) CreateAccount(ctx context.Context, request CreateAccountRequestDto) (CreateAccountResponseDto, error) {
-	var response CreateAccountResponseDto
+func (uc *CreateUserUsecase) CreateUser(ctx context.Context, request CreateUserRequestDto) (CreateUserResponseDto, error) {
+	var response CreateUserResponseDto
 	hashedPassword, salt, err := uc.crypto.HashPassword(request.Password)
 	if err != nil {
 		return response, HashPasswordError
 	}
 
-	Account := entities.Account{Login: request.Login, Password: hashedPassword, Salt: salt, Role: request.Role}
+	user := entities.User{Login: request.Login, Password: hashedPassword, Salt: salt, Role: request.Role}
 
-	_, err = Account.Validate()
+	_, err = user.Validate()
 	if err != nil {
 		return response, ValidationError
 	}
 
-	id, err := uc.accountRepo.Create(ctx, Account)
+	id, err := uc.userRepo.Create(ctx, user)
 	if err != nil {
 		return response, CreateError
 	}
@@ -60,7 +60,7 @@ func (uc *CreateAccountUsecase) CreateAccount(ctx context.Context, request Creat
 		return response, fmt.Errorf("failed to generate refresh token: %w", err)
 	}
 
-	response = CreateAccountResponseDto{
+	response = CreateUserResponseDto{
 		Id:           id,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

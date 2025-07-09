@@ -5,14 +5,9 @@ import (
 	"context"
 )
 
-type CreateAccountUsecase interface {
-	CreateAccount(context.Context, usecases.CreateAccountRequestDto) (usecases.CreateAccountResponseDto, error)
+type CreateUserUsecase interface {
+	CreateUser(context.Context, usecases.CreateUserRequestDto) (usecases.CreateUserResponseDto, error)
 }
-
-type CreateStudentUsecase interface {
-	CreateStudent(context.Context, usecases.CreateStudentRequestDto) (usecases.CreateStudentResponseDto, error)
-}
-
 type ReadAllStudentsUsecase interface {
 	ReadAllStudents(context.Context) (usecases.ReadAllStudentsResponseDto, error)
 }
@@ -33,10 +28,6 @@ type DeleteStudentUsecase interface {
 	DeleteStudent(context.Context, usecases.DeleteStudentRequestDto) error
 }
 
-type CreateTeacherUsecase interface {
-	CreateTeacher(context.Context, usecases.CreateTeacherRequestDto) (usecases.CreateTeacherResponseDto, error)
-}
-
 type ReadAllTeachersUsecase interface {
 	ReadAllTeachers(context.Context) (usecases.ReadAllTeachersResponseDto, error)
 }
@@ -51,10 +42,6 @@ type UpdateTeacherUsecase interface {
 
 type DeleteTeacherUsecase interface {
 	DeleteTeacher(context.Context, usecases.DeleteTeacherRequestDto) error
-}
-
-type CreateAdminUsecase interface {
-	CreateAdmin(context.Context, usecases.CreateAdminRequestDto) (usecases.CreateAdminResponseDto, error)
 }
 
 type ReadAdminUsecase interface {

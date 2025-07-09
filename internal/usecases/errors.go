@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	AccountNotFoundError     = errors.New("account not found")
+	UserNotFoundError        = errors.New("account not found")
 	UserAccountNotFoundError = errors.New("user account not found")
 	DifferentPasswordError   = errors.New("passwords are not similar")
 	HashPasswordError        = errors.New("failed to hash password")

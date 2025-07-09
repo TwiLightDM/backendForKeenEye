@@ -26,22 +26,19 @@ func NewRouter(c *container.Container) *gin.Engine {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	router.POST("/api/create-account", c.AccountController.CreateAccount)
+	router.POST("/api/create-user", auth, c.UserController.CreateUser)
 
-	router.POST("/api/create-student", auth, c.StudentController.CreateStudent)
 	router.GET("/api/read-all-students", auth, c.StudentController.ReadAllStudents)
-	router.GET("/api/read-all-students-from-group", auth, c.StudentController.ReadAllStudentsByGroupId)
+	router.GET("/api/read-all-students-by-group-id", auth, c.StudentController.ReadAllStudentsByGroupId)
 	router.GET("/api/read-student", auth, c.StudentController.ReadStudent)
 	router.PUT("/api/update-student", auth, c.StudentController.UpdateStudent)
 	router.DELETE("/api/delete-student", auth, c.StudentController.DeleteStudent)
 
-	router.POST("/api/create-teacher", auth, c.TeacherController.CreateTeacher)
 	router.GET("/api/read-all-teachers", auth, c.TeacherController.ReadAllTeachers)
 	router.GET("/api/read-teacher", auth, c.TeacherController.ReadTeacher)
 	router.PUT("/api/update-teacher", auth, c.TeacherController.UpdateTeacher)
 	router.DELETE("/api/delete-teacher", auth, c.TeacherController.DeleteTeacher)
 
-	router.POST("/api/create-admin", auth, c.AdminController.CreateAdmin)
 	router.GET("/api/read-admin", auth, c.AdminController.ReadAdmin)
 	router.PUT("/api/update-admin", auth, c.AdminController.UpdateAdmin)
 	router.DELETE("/api/delete-admin", auth, c.AdminController.DeleteAdmin)

@@ -13,7 +13,6 @@ type UpdateTeacherRequestDto struct {
 	Id          int
 	Fio         string
 	PhoneNumber string
-	AccountId   int
 }
 
 type UpdateTeacherResponseDto struct {
@@ -36,9 +35,6 @@ func (uc *UpdateTeacherUsecase) UpdateTeacher(ctx context.Context, request Updat
 	}
 	if request.PhoneNumber != "" {
 		updates["phone_number"] = request.PhoneNumber
-	}
-	if request.AccountId != 0 {
-		updates["account_id"] = request.AccountId
 	}
 	if len(updates) == 0 {
 		return response, NoFieldsError

@@ -18,7 +18,7 @@ func NewDeleteStudentUsecase(StudentRepo DeleteStudentRepository) DeleteStudentU
 
 func (uc *DeleteStudentUsecase) DeleteStudent(ctx context.Context, request DeleteStudentRequestDto) error {
 
-	err := uc.StudentRepo.Delete(ctx, request.Id)
+	err := uc.StudentRepo.SoftDelete(ctx, request.Id)
 	if err != nil {
 		return DeleteError
 	}
