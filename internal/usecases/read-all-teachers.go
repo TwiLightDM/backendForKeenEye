@@ -10,7 +10,7 @@ type ReadAllTeachersUsecase struct {
 }
 
 type ReadAllTeachersResponseDto struct {
-	Teachers []entities.Teacher `json:"students"`
+	Teachers []entities.Teacher `json:"teachers"`
 }
 
 func NewReadAllTeachersUsecase(TeacherRepo ReadAllTeachersRepository) ReadAllTeachersUsecase {
@@ -20,13 +20,13 @@ func NewReadAllTeachersUsecase(TeacherRepo ReadAllTeachersRepository) ReadAllTea
 func (uc *ReadAllTeachersUsecase) ReadAllTeachers(ctx context.Context) (ReadAllTeachersResponseDto, error) {
 	var response ReadAllTeachersResponseDto
 
-	students, err := uc.TeacherRepo.Read(ctx)
+	teachers, err := uc.TeacherRepo.Read(ctx)
 	if err != nil {
 		return response, ReadError
 	}
 
 	response = ReadAllTeachersResponseDto{
-		Teachers: students,
+		Teachers: teachers,
 	}
 	return response, nil
 }

@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"backendForKeenEye/internal/controllers/requests"
-	"backendForKeenEye/internal/entities"
 	"backendForKeenEye/internal/usecases"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -34,23 +33,6 @@ func NewAdminController(readAdminUsecase ReadAdminUsecase, updateAdminUsecase Up
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/read-admin [get]
 func (controller *AdminController) ReadAdmin(c *gin.Context) {
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	user, ok := userRaw.(entities.User)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if user.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
 	idStr := c.Query("id")
 	if idStr == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -88,23 +70,6 @@ func (controller *AdminController) ReadAdmin(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/update-admin [put]
 func (controller *AdminController) UpdateAdmin(c *gin.Context) {
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	user, ok := userRaw.(entities.User)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if user.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
 	req := requests.UpdateAdminRequest{}
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
@@ -136,23 +101,6 @@ func (controller *AdminController) UpdateAdmin(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/delete-admin [delete]
 func (controller *AdminController) DeleteAdmin(c *gin.Context) {
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	user, ok := userRaw.(entities.User)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if user.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
 	idStr := c.Query("id")
 	if idStr == "" {
 		c.AbortWithStatus(http.StatusBadRequest)

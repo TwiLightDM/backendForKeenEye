@@ -35,23 +35,6 @@ func NewStudentController(readGroupUsecase ReadGroupUsecase, readAllStudentsUsec
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/read-all-students [get]
 func (controller *StudentController) ReadAllStudents(c *gin.Context) {
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	user, ok := userRaw.(entities.User)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if user.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
 	data, err := controller.readAllStudentsUsecase.ReadAllStudents(c)
 	if err != nil {
 		fmt.Println("failed to read students")
@@ -294,23 +277,6 @@ func (controller *StudentController) UpdateStudent(c *gin.Context) {
 // @Failure      500 {object} object "Internal server error"
 // @Router       /api/delete-student [delete]
 func (controller *StudentController) DeleteStudent(c *gin.Context) {
-	userRaw, exists := c.Get("user")
-	if !exists {
-		c.AbortWithStatus(http.StatusUnauthorized)
-		return
-	}
-
-	user, ok := userRaw.(entities.User)
-	if !ok {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
-	if user.Role != "admin" {
-		c.AbortWithStatus(http.StatusForbidden)
-		return
-	}
-
 	idStr := c.Query("id")
 	if idStr == "" {
 		c.AbortWithStatus(http.StatusBadRequest)

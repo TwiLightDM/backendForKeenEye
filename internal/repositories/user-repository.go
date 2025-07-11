@@ -47,8 +47,18 @@ func (repo *UserRepository) Create(ctx context.Context, user entities.User) (int
 		return 0, SqlInsertError
 	}
 
+	var table string
+	switch user.Role {
+	case "student":
+		table = "students"
+	case "teacher":
+		table = "teachers"
+	case "admin":
+		table = "admins"
+	}
+
 	sql, args, err = repo.builder.
-		Insert(user.Role + "s").
+		Insert(table).
 		Columns("id").
 		Values(newID).
 		ToSql()

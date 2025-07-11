@@ -3,7 +3,7 @@ package container
 import (
 	"backendForKeenEye/config"
 	"backendForKeenEye/internal/controllers"
-	"backendForKeenEye/internal/middleware"
+	"backendForKeenEye/internal/middlewares"
 	"backendForKeenEye/internal/repositories"
 	"backendForKeenEye/internal/usecases"
 	encryptionService "backendForKeenEye/pkg/encryption-service"
@@ -27,7 +27,9 @@ type Container struct {
 	AdminController   controllers.AdminController
 	GroupController   controllers.GroupController
 
-	AuthMiddleware func() func(c *gin.Context)
+	AuthMiddleware         func() func(c *gin.Context)
+	AdminMiddleware        func() func(c *gin.Context)
+	TeacherAdminMiddleware func() func(c *gin.Context)
 }
 
 func NewContainer() *Container {
@@ -113,14 +115,16 @@ func NewContainer() *Container {
 	)
 
 	return &Container{
-		Cfg:               *cfg,
-		Ctx:               ctx,
-		PGClient:          pgClient,
-		UserController:    accountController,
-		StudentController: studentController,
-		TeacherController: teacherController,
-		AdminController:   adminController,
-		GroupController:   groupController,
-		AuthMiddleware:    func() func(c *gin.Context) { return middleware.AuthMiddleware(ctx, authService) },
+		Cfg:                    *cfg,
+		Ctx:                    ctx,
+		PGClient:               pgClient,
+		UserController:         accountController,
+		StudentController:      studentController,
+		TeacherController:      teacherController,
+		AdminController:        adminController,
+		GroupController:        groupController,
+		AuthMiddleware:         func() func(c *gin.Context) { return middlewares.AuthMiddleware(ctx, authService) },
+		AdminMiddleware:        func() func(c *gin.Context) { return middlewares.AdminMiddleware() },
+		TeacherAdminMiddleware: func() func(c *gin.Context) { return middlewares.TeacherAdminMiddleware() },
 	}
 }
